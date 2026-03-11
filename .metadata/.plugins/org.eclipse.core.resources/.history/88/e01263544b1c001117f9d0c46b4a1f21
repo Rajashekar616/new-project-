@@ -1,0 +1,89 @@
+package com.revpay.controller;
+
+import java.security.Principal;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import com.revpay.entity.BusinessVerification;
+import com.revpay.repository.BusinessVerificationRepository;
+
+@Controller
+public class BusinessVerificationController {
+
+    @Autowired
+    private BusinessVerificationRepository repository;
+
+    // BUSINESS PAGE
+    @GetMapping("/business-verification")
+    public String verificationPage(Model model,
+                                   Principal principal) {
+
+        String email = principal.getName();
+
+        List<BusinessVerification> list =
+                repository.findByBusinessEmail(email);
+
+        model.addAttribute("verifications", list);
+        model.addAttribute("verification",
+                new BusinessVerification());
+
+        return "business-verification";
+    }
+
+    // SUBMIT DOCUMENT
+    @PostMapping("/submit-verification")
+    public String submitVerification(
+            @ModelAttribute BusinessVerification verification,
+            Principal principal) {
+
+        verification.setBusinessEmail(principal.getName());
+
+        repository.save(verification);
+
+        return "redirect:/business-verification";
+    }
+
+    // ADMIN VIEW
+    @GetMapping("/admin-verifications")
+    public String adminView(Model model) {
+
+        model.addAttribute("list",
+                repository.findAll());
+
+        return "admin-verifications";
+    }
+
+    // APPROVE
+    @GetMapping("/approve-verification/{id}")
+    public String approve(@PathVariable Long id) {
+
+        BusinessVerification v =
+                repository.findById(id).orElse(null);
+
+        if (v != null) {
+            v.setStatus("APPROVED");
+            repository.save(v);
+        }
+
+        return "redirect:/admin-verifications";
+    }
+
+    // REJECT
+    @GetMapping("/reject-verification/{id}")
+    public String reject(@PathVariable Long id) {
+
+        BusinessVerification v =
+                repository.findById(id).orElse(null);
+
+        if (v != null) {
+            v.setStatus("REJECTED");
+            repository.save(v);
+        }
+
+        return "redirect:/admin-verifications";
+    }
+}

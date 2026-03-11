@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body style="font-family:Arial;padding:20px;">
+
+<h2>Business Verification 📄</h2>
+
+<form th:action="@{/submit-verification}"
+      method="post"
+      th:object="${verification}">
+
+<input type="text"
+th:field="*{documentName}"
+placeholder="Document Name"
+required>
+
+<button type="submit">Submit</button>
+
+</form>
+
+<hr>
+
+<table border="1" cellpadding="10">
+<tr>
+<th>Document</th>
+<th>Status</th>
+</tr>
+
+<tr th:each="v : ${verifications}">
+<td th:text="${v.documentName}"></td>
+<td th:text="${v.status}"></td>
+</tr>
+</table>
+
+</body>
+</html>
